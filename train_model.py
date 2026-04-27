@@ -1,32 +1,49 @@
-from noshow_iq.preprocess import load_and_clean, get_features_and_target
-from noshow_iq.model import train
+import os
+import sys
 from pymongo import MongoClient
 from datetime import datetime, timezone
-from dotenv import load_dotenv
-import os
+from noshow_iq.preprocess import load_and_clean, get_features
+from noshow_iq.model import train
 
-load_dotenv()
-df = load_and_clean("KaggleV2-May-2016.csv")
-X, y = get_features_and_target(df)
-metrics = train(X, y)
-print("Training complete!")
-print(metrics)
+if __name__ == "__main__":
+    # Find dataset
+    paths = [
+        "data/KaggleV2-May-2016.csv",
+        "noshow_iq/data/KaggleV2-May-2016.csv",
+    ]
+    dataset_path = None
+    for p in paths:
+        if os.path.exists(p):
+            dataset_path = p
+            break
 
-# Save to MongoDB
-client = MongoClient(os.getenv("MONGO_URI"))
-db = client["noshowiq"]
-training_runs_col = db["training_runs"]
+    if not dataset_path:
+        print("Dataset not found!")
+        sys.exit(1)
 
-training_runs_col.insert_one({
-    "timestamp": datetime.now(timezone.utc).isoformat(),
-    "training_size": metrics["training_size"],
-    "precision_0": metrics["precision_0"],
-    "recall_0": metrics["recall_0"],
-    "f1_0": metrics["f1_0"],
-    "precision_1": metrics["precision_1"],
-    "recall_1": metrics["recall_1"],
-    "f1_1": metrics["f1_1"],
-    "imbalance_technique": metrics["imbalance_technique"],
-})
+    print("Loading dataset...")
+    df = load_and_clean(dataset_path)
+    X, y = get_features(df)
 
-print("Training run saved to MongoDB!")
+    print("Training model...")
+    model, metrics = train(X, y)
+
+    try:
+        MONGO_URI = os.getenv("MONGO_URI")
+        if not MONGO_URI:
+            raise ValueError("MONGO_URI not set")
+        client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+        client.server_info()
+        db = client["noshow_iq"]
+        db["training_runs"].insert_one({
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "training_size": len(X),
+            "imbalance_technique": "SMOTE + class_weight=balanced",
+            "metrics": metrics,
+        })
+        print("Training run saved to MongoDB!")
+    except Exception as e:
+        print(f"MongoDB skipping: {e}")
+
+    print("Training complete!")
+    print(metrics)
