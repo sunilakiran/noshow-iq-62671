@@ -67,3 +67,4 @@ def evaluate(model, X: pd.DataFrame, y: pd.Series) -> dict:
     y_pred = model.predict(X)
     report = classification_report(y, y_pred, output_dict=True)
     return report
+
