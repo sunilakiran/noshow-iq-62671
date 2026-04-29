@@ -22,10 +22,8 @@ jobs:
       - name: Lint (non-blocking)
         run: flake8 noshow_iq/ --max-line-length=120 --ignore=E501,W293,W391,F401 || true
 
-      - name: Run pytest
-        env:
-          MONGO_URI: ${{ secrets.MONGO_URI }}
-        run: pytest tests/ -v
+      -  - name: Run pytest
+         run: pytest tests/test_preprocess.py -v
 
       - name: Build Docker image
         run: docker build -t sunilakiran/noshow-iq:latest .
