@@ -61,4 +61,3 @@ def get_features_and_target(df: pd.DataFrame):
     X = df[feature_cols]
     y = df["no_show"]
     return X, y
-

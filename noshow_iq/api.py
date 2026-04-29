@@ -6,7 +6,6 @@ from pymongo import MongoClient
 import os
 from dotenv import load_dotenv
 from noshow_iq.model import load_model, predict
-from noshow_iq.preprocess import get_features_and_target
 
 load_dotenv()
 
@@ -16,7 +15,11 @@ db = client["noshowiq"]
 predictions_col = db["predictions"]
 training_runs_col = db["training_runs"]
 
-model = load_model()
+model = None
+try:
+    model = load_model()
+except Exception:
+    model = None
 
 
 class AppointmentInput(BaseModel):
@@ -107,4 +110,3 @@ def stats():
         "average_probability": 0,
         "last_trained": last_trained,
     }
-    
