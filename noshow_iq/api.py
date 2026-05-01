@@ -106,5 +106,3 @@ def stats():
         "average_probability": 0,
         "last_trained": last_trained,
     }
-    
-    
