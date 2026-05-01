@@ -1,23 +1,22 @@
-FROM python:3.11-slim
-
+FROM python:3.11-slim AS builder
 WORKDIR /app
-
-RUN useradd -m -u 1000 appuser
-
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY noshow_iq/ ./noshow_iq/
-COPY train_model.py .
-COPY smoke_test.py .
-COPY data/ ./data/
+FROM python:3.11-slim
+WORKDIR /app
+RUN useradd -m appuser
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+COPY . .
 
-ENV PYTHONPATH=/app
+RUN pip install kaggle --no-cache-dir && \
+    mkdir -p noshow_iq/data && \
+    kaggle datasets download -d joniarroba/noshowappointments -p noshow_iq/data --unzip && \
+    python build_train.py && \
+    rm -rf noshow_iq/data
 
-RUN python train_model.py
-
+RUN chown -R appuser:appuser /app
 USER appuser
-
 EXPOSE 7860
-
-CMD ["python", "-m", "noshow_iq.api"]
+CMD ["uvicorn", "noshow_iq.api:app", "--host", "0.0.0.0", "--port", "7860"]

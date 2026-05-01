@@ -1,6 +1,5 @@
 import joblib
 import pandas as pd
-import os
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
@@ -45,8 +44,6 @@ def train(X: pd.DataFrame, y: pd.Series) -> dict:
 
 
 def load_model():
-    if not os.path.exists(MODEL_PATH):
-        return None
     return joblib.load(MODEL_PATH)
 
 

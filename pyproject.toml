@@ -3,25 +3,21 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "noshow-iq-62671"
-version = "0.3.0"
-description = "Patient no-show prediction API for clinics"
-authors = [{name = "sunilakiran"}]
-requires-python = ">=3.9"
-license = {text = "MIT"}
+name = "noshow_iq"
+version = "0.1.0"
+description = "A prediction API for medical appointment no-shows"
+readme = "README.md"
+requires-python = ">=3.11"
 dependencies = [
-    "flask",
-    "pymongo",
-    "scikit-learn",
+    "fastapi",
+    "uvicorn",
     "pandas",
-    "numpy",
+    "scikit-learn",
     "imbalanced-learn",
     "joblib",
+    "pymongo",
     "python-dotenv",
 ]
-
-[project.optional-dependencies]
-dev = ["pytest", "flake8"]
 
 [tool.setuptools.packages.find]
 where = ["."]
@@ -29,4 +25,3 @@ include = ["noshow_iq*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_preprocess.py"]

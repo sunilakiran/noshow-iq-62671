@@ -15,11 +15,7 @@ db = client["noshowiq"]
 predictions_col = db["predictions"]
 training_runs_col = db["training_runs"]
 
-model = None
-try:
-    model = load_model()
-except Exception:
-    model = None
+model = load_model()
 
 
 class AppointmentInput(BaseModel):

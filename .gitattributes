@@ -1,2 +1,4 @@
+*.csv filter=lfs diff=lfs merge=lfs -text
+noshow_iq/data/KaggleV2-May-2016.csv filter=lfs diff=lfs merge=lfs -text
 *.joblib filter=lfs diff=lfs merge=lfs -text
 data/KaggleV2-May-2016.csv filter=lfs diff=lfs merge=lfs -text
